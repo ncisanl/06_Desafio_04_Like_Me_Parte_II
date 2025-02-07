@@ -5,17 +5,28 @@ const getPosts = async () => {
   return rows;
 };
 
-const postPosts = async (titulo, img, descripcion, likes) => {
-  const { rowCount } = await pool.query({
-    text: "INSERT INTO posts (titulo, img, descripcion, likes) VALUES ($1, $2, $3, $4)",
-    values: [titulo, img, descripcion, likes],
-  });
+const postPosts = async (titulo, img, descripcion) => {
+  const query =
+    "INSERT INTO posts (titulo, img, descripcion, likes) VALUES ($1, $2, $3, 0) RETURNING *";
+  const { rows } = await pool.query(query, [titulo, img, descripcion]);
+  return rows[0];
+};
 
-  console.log("Posts agregado", rowCount);
-  return rowCount;
+const deletePosts = async (id) => {
+  const query = "DELETE FROM posts WHERE id = $1 RETURNING *";
+  const { rows } = await pool.query(query, [id]);
+  return rows[0];
+};
+
+const updatePosts = async (id) => {
+  const query = "UPDATE posts SET likes = likes + 1 WHERE id = $1 RETURNING *";
+  const { rows } = await pool.query(query, [id]);
+  return rows[0];
 };
 
 export const likeModel = {
   getPosts,
   postPosts,
+  deletePosts,
+  updatePosts,
 };

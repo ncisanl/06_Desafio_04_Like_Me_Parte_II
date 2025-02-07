@@ -18,7 +18,7 @@ app.get("/posts", async (req, res) => {
 });
 
 app.post("/posts", async (req, res) => {
-  const { titulo, img, descripcion, likes } = req.body;
+  const { titulo, img, descripcion } = req.body;
 
   if (!titulo || !img || !descripcion) {
     return res.status(400).json({
@@ -27,8 +27,42 @@ app.post("/posts", async (req, res) => {
   }
 
   try {
-    const newPosts = await likeModel.postPosts(titulo, img, descripcion, likes);
+    const newPosts = await likeModel.postPosts(titulo, img, descripcion);
     return res.json(newPosts);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+app.delete("/posts/:id", async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const deletePost = await likeModel.deletePosts(id);
+
+    if (!deletePost) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    return res.json({ message: "Post eliminado" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+app.put("/posts/like/:id", async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const updatePost = await likeModel.updatePosts(id);
+
+    if (!updatePost) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    return res.json({ message: "Post actualizado" });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal Server Error" });
